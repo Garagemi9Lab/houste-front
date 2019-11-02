@@ -2,6 +2,9 @@ import React, { Component } from 'react'
 import style from './style'
 import { withStyles, TextField, IconButton } from '@material-ui/core'
 import { Send } from '@material-ui/icons'
+import Bubble from './Bubble'
+import { connect } from 'react-redux'
+import { sendMessage } from '../../actions/messagesAction'
 
 class Chat extends Component {
 
@@ -15,10 +18,40 @@ class Chat extends Component {
         inputValue: ''
     }
 
-    handleSubmit = e => {
+    componentDidMount() {
+        const { place } = this.props
 
+        this.props.sendMessage({
+            type: 'text',
+            date: new Date().getTime(),
+            user: 'application',
+            value: 'Olá',
+            firstMessage: true
+        }, place)
+    }
+
+
+    handleSubmit = e => {
         e.preventDefault()
-        console.log('Form submitted')
+        const { place } = this.props
+        let { inputValue } = this.state
+        inputValue = inputValue.trim()
+        if (inputValue !== '') {
+            this.setState({ inputValue: '' })
+            this.props.sendMessage({
+                type: 'text',
+                date: new Date().getTime(),
+                user: 'client',
+                value: inputValue
+            }, place)
+        }
+    }
+
+    componentDidUpdate() {
+        if (this.messagesHolder.current.scrollTop !== this.messagesHolder.current.scrollHeight)
+            this.messagesHolder.current.scrollTop = this.messagesHolder.current.scrollHeight
+        if (this.inputTextField)
+            this.inputTextField.current.focus()
     }
 
     handleInputChange = event => {
@@ -28,12 +61,15 @@ class Chat extends Component {
 
     render() {
 
-        const { classes } = this.props
+        const { classes, messages } = this.props
 
         return (
             <div className={classes.holder}>
                 <div className={classes.messagesHolder} ref={this.messagesHolder}>
-                    <div>test</div>
+                    {messages.values.map((message, index) => <Bubble key={index} message={message} />)}
+                    {messages.isSending && (
+                        <Bubble message={{ type: 'typing', user: 'application' }} />
+                    )}
                 </div>
                 <div className={classes.footer}>
                     <form noValidate autoComplete="off" className={classes.footerHolder} onSubmit={this.handleSubmit}>
@@ -47,10 +83,12 @@ class Chat extends Component {
                             margin="normal"
                             placeholder="Informe a sua mensagem"
                             onChange={this.handleInputChange}
-                            disabled={false}
+                            disabled={messages.isSending ? true : false}
                             inputRef={this.inputTextField}
                         />
-                        <IconButton color="primary" type="submit">
+                        <IconButton color="primary" type="submit"
+                            disabled={messages.isSending ? true : false}
+                        >
                             <Send />
                         </IconButton>
                     </form>
@@ -61,4 +99,19 @@ class Chat extends Component {
 
 }
 
-export default withStyles(style)(Chat)
+const mapStateToProps = (messages) => {
+    return {
+        messages
+    }
+}
+
+const mapDispatchToProps = dispatch => {
+    return {
+        sendMessage: (message, place) => dispatch(sendMessage(message, place))
+    }
+}
+
+export default connect(
+    mapStateToProps,
+    mapDispatchToProps
+)(withStyles(style)(Chat))

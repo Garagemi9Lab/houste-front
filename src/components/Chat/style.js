@@ -24,6 +24,7 @@ export default {
         flexGrow: 1
     },
     inputTextField: {
-        paddingLeft: 5
+        paddingLeft: 5,
+        color: 'white'
     }
 }
