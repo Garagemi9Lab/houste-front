@@ -20,8 +20,8 @@ export default theme => ({
     },
     clientBubble: {
         marginRight: 5,
-        backgroundColor: fade(theme.palette.primary.main, 0.3),
-        color: '#fff',
+        backgroundColor: fade(theme.palette.primary.main, 0.6),
+        color: '#000',
         textAlign: 'left',
         borderTopLeftRadius: 5,
         borderBottomLeftRadius: 5,

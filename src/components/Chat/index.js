@@ -66,6 +66,7 @@ class Chat extends Component {
         return (
             <div className={classes.holder}>
                 <div className={classes.messagesHolder} ref={this.messagesHolder}>
+                    {messages.history.map((message, index) => <Bubble key={index} message={message} />)}
                     {messages.values.map((message, index) => <Bubble key={index} message={message} />)}
                     {messages.isSending && (
                         <Bubble message={{ type: 'typing', user: 'application' }} />

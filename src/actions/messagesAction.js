@@ -33,7 +33,12 @@ export const sendMessage = (message, place) => dispatch => {
         .then(results => {
             console.log(results)
             let sessionMessages = LocalSession.getSession('messages') || []
-            LocalSession.setSession('messages', sessionMessages.concat([message], results.messages))
+            if (!message.firstMessage) {
+                LocalSession.setSession('messages', sessionMessages.concat([message], results.messages))
+            } else {
+                LocalSession.setSession('messages', sessionMessages.concat(results.messages))
+            }
+
             LocalSession.setSession('session_id', results.session_id)
             LocalSession.setSession('context', results.context)
             return dispatch(sendMessageSuccess(results.messages))
